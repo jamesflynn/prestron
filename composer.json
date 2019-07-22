@@ -1,0 +1,9 @@
+{
+  "require" : {
+    "monolog/monolog": "^1.24",
+    "airbrake/phpbrake": "^0.7.0"
+  },
+  "require-dev": {
+    "heroku/heroku-buildpack-php": "*"
+  }
+}
