@@ -348,7 +348,7 @@ catch(PDOException $e)
 	// 						HANDLE NON-ADMIN ERROR CASE 2 : WRONG TIME
 	//--------------------------------------------
 
-	elseif ($sendernotnew && !$timechecksout && $codechecksout) {
+	elseif ($sendernotnew && !$timechecksout ) {
 		$mssgtosendr = "I'm sorry ".$thisusersname.", it looks like your key has expired. :'(";
 		$mssgtoadmin = $thisusersname." ".$sender." just tried to get in with an expired key";	
 		send_message ($web,$usetwilio,$sender,$twinum,$mssgtosendr);
@@ -360,13 +360,8 @@ catch(PDOException $e)
 	//----------------------------------------------
 
 	else {
-		$funmssg[1] = "New phone. Who dis?";
-		$funmssg[2] = "You shouldn't come around here, singin' up at people like that.";
-		$funmssg[3] = "It is the distant future, the year 2000";
-		$funmssg[4] = "I may be an abode but I wasn't born yesterday";
-		$funmssg[5] = "Feeling lucky? Hmm?";
 
-		$mssgtosendr = $funmssg[rand(1,5)];
+		$mssgtosendr = "New phone who dis?";
 		$mssgtoadmin = "Knock knock! ".format_phone($sender)." is texting, randomly." ;	
 		send_message ($web,$usetwilio,$sender,$twinum,$mssgtosendr);
 		send_message ($web,$usetwilio,$admin0,$twinum,$mssgtoadmin);
@@ -374,7 +369,7 @@ catch(PDOException $e)
 
 
 	if ($web){
-//		$all = array();
+
         echo "<br><br><h3>User Table</h3>";
         echo "<table class=\"table\"><thead class=\"thead-dark\"><tr><th scope=\"col\">Name</th><th scope=\"col\">Number</th><th scope=\"col\">Code</th><th scope=\"col\">End Access</th><th scope=\"col\">Has Been</th></tr>";
 		$sql = $pdo->query('SELECT * FROM visitors');
