@@ -3,9 +3,12 @@
     ini_set("auto_detect_line_endings", true);
     require __DIR__ . '/../vendor/autoload.php';
 
+	$airbrakeid	    = getenv('AIRBRAKE_ID'); 
+	$airbrakekey	= getenv('AIRBRAKE_KEY'); 
+
     $notifier = new Airbrake\Notifier(array(
-        'projectId' => 236967,
-        'projectKey' => 'd41b3219f6ba41ce247e57c970f5efc5'
+        'projectId' => $airbrakeid,
+        'projectKey' => $airbrakekey
     ));
 
     Airbrake\Instance::set($notifier);
