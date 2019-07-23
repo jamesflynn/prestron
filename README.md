@@ -35,7 +35,7 @@ NONADMIN_NUMBER - set this to a non-admin number for web-interface testing
 SMARTTHINGS_KEY - you get the idea
 AUGUST_DEVICE_ID - "
 ```
-6. Browse to your app and start playing with it. The web interface is a real version of the app, but will fake 
+6. Browse to your app and start playing with it. The web interface is a real version of the app, but defaults to pretending to send texts and webhook commands, unless you specify otherwise.
 
 ## Security
 
