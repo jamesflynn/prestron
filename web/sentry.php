@@ -3,7 +3,7 @@
 	date_default_timezone_set('America/New_York');
     $timenow = date('H:i:s',time());
     require('pres/functions.php');
-    require('pres/webhook.php');
+    require('pres/webhooks.php');
 
     $url = getenv('JAWSDB_URL');
     $dbparts = parse_url($url);
@@ -32,9 +32,9 @@
 
     $motion = $all[$key]['State'];
     
-    if (!$motion) fire_webhook('porch_lights_off');
+    if (!$motion) ifttt_webhook(true,'porch_lights_off');
     else { sleep(360);
-            fire_webhook('porch_lights_off');
+            ifttt_webhook(true,'porch_lights_off');
          }
     
 ?>

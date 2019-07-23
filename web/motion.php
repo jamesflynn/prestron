@@ -4,7 +4,7 @@ ini_set("auto_detect_line_endings", true);
 	date_default_timezone_set('America/New_York');
     $timenow = date('H:i:s',time());
 
-    require('pres/webhook.php');
+    require('pres/webhooks.php');
     require('pres/get_light.php');
 
     $url = getenv('JAWSDB_URL');
