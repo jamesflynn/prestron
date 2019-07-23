@@ -10,8 +10,8 @@ You will need:
 
 * A Twilio account, and number. www.twilio.com
 * A host server with PHP, nginx, mysql (Heroku Hobby at $7 a month is ideal)
-* Some way of unlocking or locking your house via API. My old place had a gate buzzer (like a lot of places in San Francisco - so a Smartthings compatible relay in parallel with the buzzer worked great) and my new place has an August Smart Lock which I can control... via IFTTT... via Smartthings. Did someone say Rube Goldberg?
-* An IFTTT account, if yer using web'ooks! (Webhooks)
+* Some way of unlocking or locking your house via API. My old place had a gate buzzer (like a lot of places in San Francisco - so a Smartthings compatible relay in parallel with the buzzer worked great) and my new place has an August Smart Lock which I can control... via IFTTT... via Smartthings. Did someone say Rube Goldberg? [Update - now connecting straight to Smartthings]
+* An IFTTT account, if yer using web'ooks! (Webhooks) [Update - now optional]
 
 ## Instructions
 
