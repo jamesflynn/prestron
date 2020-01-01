@@ -26,13 +26,32 @@ return $response ;
 
 }
 
-function smartthings_webhook($fire = true, $event = 'event'){
+function u_perm($usertype){
+
+    switch ($usertype) {
+        case 1:
+            return "28 Preston";
+        case 2:
+            return "AirBnB";
+        case 3:
+            return "Both";
+        case 8:
+            return "Superuser";
+    }
+}
+
+
+function smartthings_webhook($fire = true, $which_lock = 1, $event = 'event'){
 
 if ($fire){
     $key = getenv('SMARTTHINGS_KEY');
-    $device = getenv('AUGUST_DEVICE_ID');
+    $device1 = getenv('AUGUST_DEVICE_ID');
+    $device2 = getenv('AIRBNB_DEVICE_ID');
 
-    $url = 'https://api.smartthings.com/v1/devices/'.$device.'/commands';
+    if ($which_lock == 2)
+        $url = 'https://api.smartthings.com/v1/devices/'.$device2.'/commands';
+    else
+        $url = 'https://api.smartthings.com/v1/devices/'.$device1.'/commands';
 
     $data = array(
         "commands" => array(array(
@@ -87,8 +106,15 @@ if ($fire){
 
 }
 else {
-        echo "(Would have) sent ".$event." command to lock</br></br>";
+    if ($which_lock == 1){
+        echo "(Would have) sent ".$event." command to 28 Preston lock</br></br>";
         $response = '';
+    }
+    else if ($which_lock == 2){
+        echo "(Would have) sent ".$event." command to AirBnB lock</br></br>";
+        $response = '';
+ 
+    }
     }
 
 return $response ;

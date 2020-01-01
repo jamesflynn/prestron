@@ -29,8 +29,8 @@
     $url            = getenv('JAWSDB_URL');
 	$twinum         = getenv('TWILIO_NUMBER');  // Set this to your twilio number
 
-    if (getenv("DISABLE_WEB") !== false)
-        $disable_web = getenv("DISABLE_WEB") ;
+    if (getenv("ENABLE_WEB") == true)
+        $disable_web = false ;
     else
         $disable_web = true ;
 
@@ -60,7 +60,7 @@
 
 	if (isset($_SERVER['HTTP_USER_AGENT']) && is_browser($_SERVER['HTTP_USER_AGENT'])){  // if browser
     
-        if (!$disable_web){  // if browser and web not disabled
+        if ($disable_web == false){  // if browser and web not disabled
             $web         = true ;
     		$body 		 = isset($_GET["Body"]) ? htmlspecialchars($_GET["Body"]) : "Body not set.";
             $sender 	 = isset($_GET["Sender"]) ? htmlspecialchars($_GET["Sender"]) : "+15555555555";
@@ -121,7 +121,8 @@
 	$admin  = false ;					    // user is admin
 	$lockit = false ;					// locking door
 	$notnew = false ;					// user is not new to the system
-    $adminisadminning = false ;
+	$adminisadminning = false ;
+	$which_lock = 1;
 
 	//------------------------------------------------------
 	// Database Connect and Read Table
@@ -145,7 +146,9 @@ catch(PDOException $e)
 	$sql = $pdo->query('SELECT * FROM visitors');
 	while ($row = $sql->fetch())
 		{		$all[] = $row;
-		 		$numbers[] = $row['PhoneNum'];		}
+				$numbers[] = $row['PhoneNum'];
+//				$user_type = $row['UserType'];
+			}
 	$n = sizeof($all);
 	
 	//------------------------------------------------------
@@ -163,11 +166,13 @@ catch(PDOException $e)
 		$thisuserscode = $all[$key]['AccessCode'];
 		$thisusersendtime = $all[$key]['EndAccess'];
 		$thisusersname = $all[$key]['FirstName'];
+		$user_type =  $all[$key]['UserType'];
 		}
 	else {
 		$thisuserscode = null;
 		$thisusersendtime = null;
 		$thisusersname = 'friend';
+		$user_type =  null;
 	}
 
 	if (stripos($body,(string)$thisuserscode) !== false) $codechecksout = true ;
@@ -188,11 +193,19 @@ catch(PDOException $e)
 
     if ((stripos($body,'lock') !== false)) $lockit = true ; 	
 
-    if ($sender == $admin0) $admin = true ;
+    if ($user_type == 8)
+		$admin = true ;
+	else if ($user_type == 2)
+		$which_lock = 2 ;
+
 
 	if ($admin && stripos($body,'allow') !== false ){
 		$adminisadminning = true ;
-        $newstring = str_ireplace('allow','',$body);	// remove allow and write to string
+		$newstring = str_ireplace('allow','',$body);	// remove allow and write to string
+//		if (stripos($body,'airbnb') !== false){
+//			$which_lock = 2;
+//			$newstring = str_ireplace('airbnb','',$newstring);	// remove airbnb and set lock to lock 2
+//		}
         $matchnum = preg_match('/\d{10}/u', $newstring, $matches);	// find first 10 digits
         $newusernum = $matches[0];									// assign to user number
         $newstring = str_replace($newusernum,'',$newstring);		// clean phone number
@@ -222,6 +235,9 @@ catch(PDOException $e)
     echo "<br><h3>Debug Mode</h3>";
 	echo "<br>Sender: ".$sender."</br>";
 	echo "Body: ".$body."</br>";
+	echo "User Type: ".$user_type."</br>";
+	echo $which_lock == 2 ? "Which Lock: AirBnB" : "Which Lock: 28 Preston";  
+	echo "</br>";	
 	echo $admin ? "Admin: Yes" : "Admin: No"; 
     echo "</br></br>";	
 
@@ -264,7 +280,7 @@ catch(PDOException $e)
 		$mssgtosendr = "I've locked the door ".$thisusersname;
 		$mssgtoadmin = $thisusersname." ".$sender." locked the door";
 
-        smartthings_webhook ($fire, 'lock');
+        smartthings_webhook ($fire,$which_lock, 'lock');
         send_message ($web,$usetwilio,$sender,$twinum,$mssgtosendr);
         if (!$admin) send_message ($web,$usetwilio,$admin0,$twinum,$mssgtoadmin);
         
@@ -285,7 +301,7 @@ catch(PDOException $e)
 		$mssgtoadmin = $thisusersname." ".$sender." unlocked the door";	
         if (!$daylight) ifttt_webhook($fire,'porch_lights_on');
         
-		smartthings_webhook($fire,'unlock');
+		smartthings_webhook($fire,$which_lock,'unlock');
         send_message ($web,$usetwilio,$sender,$twinum,$mssgtosendr);
         if (!$admin) send_message ($web,$usetwilio,$admin0,$twinum,$mssgtoadmin);
         
@@ -371,12 +387,13 @@ catch(PDOException $e)
 	if ($web){
 
         echo "<br><br><h3>User Table</h3>";
-        echo "<table class=\"table\"><thead class=\"thead-dark\"><tr><th scope=\"col\">Name</th><th scope=\"col\">Number</th><th scope=\"col\">Code</th><th scope=\"col\">End Access</th><th scope=\"col\">Has Been</th></tr>";
+        echo "<table class=\"table\"><thead class=\"thead-dark\"><tr><th scope=\"col\">Name</th><th scope=\"col\">Permissions</th><th scope=\"col\">Number</th><th scope=\"col\">Code</th><th scope=\"col\">End Access</th><th scope=\"col\">Has Been</th></tr>";
 		$sql = $pdo->query('SELECT * FROM visitors');
 		while ($row = $sql->fetch())
 			{		//$all[] = $row;
                     echo "<tr>";
-                    echo "<td>" . $row['FirstName'] . "</td>";
+					echo "<td>" . $row['FirstName'] . "</td>";
+					echo "<td>" . u_perm($row['UserType']) . "</td>";
                     echo "<td>" . $row['PhoneNum'] . "</td>";
                     echo "<td>" . $row['AccessCode']. "</td>";
                     echo "<td>" . date("F d, Y", strtotime($row['EndAccess'])) . "</td>";
