@@ -32,8 +32,8 @@
     if (getenv("ENABLE_WEB") == true)
         $disable_web = false ;
     else
-        $disable_web = true ;
-
+		$disable_web = true ;
+	
     if (getenv("HOUSENAME") !== false)
         $housename = getenv("HOUSENAME") ;
     else
