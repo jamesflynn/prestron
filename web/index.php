@@ -34,6 +34,7 @@
     else
 		$disable_web = true ;
 	
+
     if (getenv("HOUSENAME") !== false)
         $housename = getenv("HOUSENAME") ;
     else
@@ -123,7 +124,7 @@
 	$notnew = false ;					// user is not new to the system
 	$adminisadminning = false ;
 	$which_lock = 1;
-
+	$newusertype = 1 ;
 	//------------------------------------------------------
 	// Database Connect and Read Table
 	//------------------------------------------------------ 
@@ -193,11 +194,22 @@ catch(PDOException $e)
 
     if ((stripos($body,'lock') !== false)) $lockit = true ; 	
 
-    if ($user_type == 8)
-		$admin = true ;
-	else if ($user_type == 2)
-		$which_lock = 2 ;
 
+	// User Types
+	// 1 - non admin, uses 28 Preston
+	// 2 - non admin, uses 26 Preston
+	// 5 - admin of 28 Preston
+	// 6 - admin of 26 Preston
+	// 8 - super user - James
+
+    if ($user_type == 8 || $user_type == 5 || $user_type == 6)
+		$admin = true ;
+	if ($user_type == 2 || $user_type == 6 ){
+		$which_lock = 2 ;
+		$newusertype = 2 ;
+	}
+    if ($user_type == 5 || $user_type == 6)
+		$adminname = $thisusersname ;
 
 	if ($admin && stripos($body,'allow') !== false ){
 		$adminisadminning = true ;
@@ -236,7 +248,7 @@ catch(PDOException $e)
 	echo "<br>Sender: ".$sender."</br>";
 	echo "Body: ".$body."</br>";
 	echo "User Type: ".$user_type."</br>";
-	echo $which_lock == 2 ? "Which Lock: AirBnB" : "Which Lock: 28 Preston";  
+	echo $which_lock == 2 ? "Which Lock: 26 Preston" : "Which Lock: 28 Preston";  
 	echo "</br>";	
 	echo $admin ? "Admin: Yes" : "Admin: No"; 
     echo "</br></br>";	
@@ -319,8 +331,8 @@ catch(PDOException $e)
 
 			if (!$notnew){
 				if($web) echo "ADDING NEW USER <br>";
-				$sql = "INSERT INTO visitors (FirstName, PhoneNum, StartAccess, EndAccess, AccessCode) VALUES (:newusername, :newusernum, :currenttime, :enddate, :newcode )";
-				$pdo->prepare($sql)->execute(['newusername' => $newusername, 'newusernum' => $newusernum, 'currenttime' => $currenttime, 'enddate' => $enddate, 'newcode' => $new_code]);
+				$sql = "INSERT INTO visitors (FirstName, PhoneNum, StartAccess, EndAccess, AccessCode, UserType) VALUES (:newusername, :newusernum, :currenttime, :enddate, :newcode, :usertype )";
+				$pdo->prepare($sql)->execute(['newusername' => $newusername, 'newusernum' => $newusernum, 'currenttime' => $currenttime, 'enddate' => $enddate, 'newcode' => $new_code, 'usertype' => $newusertype]);
 			}
 			else{
 				if($web) echo "UPDATING EXISTING USER <br>";
