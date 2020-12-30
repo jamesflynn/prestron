@@ -32,9 +32,13 @@ function u_perm($usertype){
         case 1:
             return "28 Preston";
         case 2:
-            return "AirBnB";
+            return "26 Preston";
         case 3:
             return "Both";
+        case 5:
+            return "28 Admin";
+        case 6:
+            return "26 Admin";
         case 8:
             return "Superuser";
     }
@@ -111,7 +115,7 @@ else {
         $response = '';
     }
     else if ($which_lock == 2){
-        echo "(Would have) sent ".$event." command to AirBnB lock</br></br>";
+        echo "(Would have) sent ".$event." command to 26 Preston lock</br></br>";
         $response = '';
  
     }
