@@ -30,7 +30,7 @@ if ($err)
 */
 function get_sunrise(){
     $lines = file('pres/sunrise.txt');
-    $day = date('z') + 1;
+    $day = date('z');
     $hhmm = $lines[$day];
     $hh = substr($hhmm, 0, 2);
     $mm = substr($hhmm, -3,2);
@@ -39,7 +39,7 @@ function get_sunrise(){
 
 function get_sunset(){
     $lines = file('pres/sunset.txt');
-    $day = date('z') + 1;
+    $day = date('z');
     $hhmm = $lines[$day];
     $hh = substr($hhmm, 0, 2);
     $mm = substr($hhmm, -3,2);
