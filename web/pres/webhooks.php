@@ -30,15 +30,17 @@ function u_perm($usertype){
 
     switch ($usertype) {
         case 1:
-            return "28 Preston";
+            return "28 Preston User";
         case 2:
-            return "26 Preston";
+            return "26 Preston User";
         case 3:
-            return "Both";
+            return "Ellery User";
+        case 4:
+            return "Ellery Admin";
         case 5:
-            return "28 Admin";
+            return "28 Preston Admin";
         case 6:
-            return "26 Admin";
+            return "26 Preston Admin";
         case 8:
             return "Superuser";
     }
@@ -51,8 +53,11 @@ if ($fire){
     $key = getenv('SMARTTHINGS_KEY');
     $device1 = getenv('AUGUST_DEVICE_ID');
     $device2 = getenv('AIRBNB_DEVICE_ID');
+    $device3 = getenv('ELLERY_DEVICE_ID');
 
-    if ($which_lock == 2)
+    if ($which_lock == 3)
+        $url = 'https://api.smartthings.com/v1/devices/'.$device3.'/commands';
+    else if ($which_lock == 2)
         $url = 'https://api.smartthings.com/v1/devices/'.$device2.'/commands';
     else
         $url = 'https://api.smartthings.com/v1/devices/'.$device1.'/commands';
@@ -117,12 +122,18 @@ else {
     else if ($which_lock == 2){
         echo "(Would have) sent ".$event." command to 26 Preston lock</br></br>";
         $response = '';
- 
+    }
+    else if ($which_lock == 3){
+        echo "(Would have) sent ".$event." command to Ellery lock</br></br>";
+        $response = '';
+    }
+    else {
+        echo "Lock selection error</br></br>";
+        $response = '';
     }
     }
 
 return $response ;
-
 
 }    
 ?>

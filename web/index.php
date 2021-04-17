@@ -125,6 +125,7 @@
 	$adminisadminning = false ;
 	$which_lock = 1;
 	$newusertype = 1 ;
+	$superuser = 0 ;
 	//------------------------------------------------------
 	// Database Connect and Read Table
 	//------------------------------------------------------ 
@@ -198,30 +199,63 @@ catch(PDOException $e)
 	// User Types
 	// 1 - non admin, uses 28 Preston
 	// 2 - non admin, uses 26 Preston
+	// 3 - non admin, uses Ellery
+	// 4 - admin of Ellery
 	// 5 - admin of 28 Preston
 	// 6 - admin of 26 Preston
 	// 8 - super user - James
 
-    if ($user_type == 8 || $user_type == 5 || $user_type == 6)
+    if ($user_type == 8 || $user_type == 5 || $user_type == 6 || $user_type == 4)
 		$admin = true ;
 	if ($user_type == 2 || $user_type == 6 ){
 		$which_lock = 2 ;
 		$newusertype = 2 ;
 	}
-    if ($user_type == 5 || $user_type == 6)
+	if ($user_type == 8 || $user_type == 4 || $user_type == 3 ){
+		$which_lock = 3 ;
+		$newusertype = 3 ;
+	}
+    if ($user_type == 4 || $user_type == 5 || $user_type == 6)
 		$adminname = $thisusersname ;
 
 	if ($admin && stripos($body,'allow') !== false ){
 		$adminisadminning = true ;
 		$newstring = str_ireplace('allow','',$body);	// remove allow and write to string
-//		if (stripos($body,'airbnb') !== false){
-//			$which_lock = 2;
-//			$newstring = str_ireplace('airbnb','',$newstring);	// remove airbnb and set lock to lock 2
-//		}
+		echo "a: ".$newstring."</br>";
         $matchnum = preg_match('/\d{10}/u', $newstring, $matches);	// find first 10 digits
         $newusernum = $matches[0];									// assign to user number
         $newstring = str_replace($newusernum,'',$newstring);		// clean phone number
-        $matchname = preg_match('/[a-zA-Z]+/', $newstring, $catches);	// find name
+		echo "b: ".$newstring."</br>";
+		if ($user_type ==8){
+			if (stripos($newstring,'26a') !== false ){
+				$newusertype = 6 ;
+				$newstring = str_ireplace('26a','',$newstring);
+			}
+			if (stripos($newstring,'28a') !== false ){
+				$newusertype = 5 ;
+				$newstring = str_ireplace('28a','',$newstring);
+			}
+			if (stripos($newstring,'Ela') !== false ){
+				$newusertype = 4 ;
+				$newstring = str_ireplace('Ela','',$newstring);
+				echo "c: ".$newstring."</br>";
+			}
+			if (stripos($newstring,'26') !== false ){
+				$newusertype = 2 ;
+				$newstring = str_ireplace('26','',$newstring);
+			}
+			if (stripos($newstring,'28') !== false ){
+				$newusertype = 1 ;
+				$newstring = str_ireplace('28','',$newstring);
+			}
+			if (stripos($newstring,'El') !== false ){
+				$newusertype = 3 ;
+				$newstring = str_ireplace('El','',$newstring);
+			}
+
+		}
+
+		$matchname = preg_match('/[a-zA-Z]+/', $newstring, $catches);	// find name
         if(!empty($catches[0]))
             $newusername = $catches[0];
         else
@@ -248,7 +282,7 @@ catch(PDOException $e)
 	echo "<br>Sender: ".$sender."</br>";
 	echo "Body: ".$body."</br>";
 	echo "User Type: ".$user_type."</br>";
-	echo $which_lock == 2 ? "Which Lock: 26 Preston" : "Which Lock: 28 Preston";  
+	echo $which_lock == 2 ? "Which Lock: 26 Preston" : ($which_lock == 3 ? "Which Lock: Ellery" : "Which Lock: 28 Preston");  
 	echo "</br>";	
 	echo $admin ? "Admin: Yes" : "Admin: No"; 
     echo "</br></br>";	
@@ -258,6 +292,8 @@ catch(PDOException $e)
 			echo "Match Name: ".$matchname."</br>";
 			echo "New User Name: ".$newusername."</br>";	
 			echo "New User Number: ".$newusernum."</br>";
+			echo "New User Type: " .$newusertype."</br>";
+			echo "New User Type Name: " .u_perm($newusertype)."</br>";
 			echo "Days Allowed: ".$daysallowed."</br>";
 			echo "Checks out: ".$good."</br></br>";	
 			echo "Not New User: ".$notnew."</br>";
@@ -311,7 +347,7 @@ catch(PDOException $e)
 		$mssgtosendr = "Code accepted ".$thisusersname.". If the door hasn't unlocked after a few seconds, please try again.";
 
 		$mssgtoadmin = $thisusersname." ".$sender." unlocked the door";	
-        if (!$daylight) ifttt_webhook($fire,'porch_lights_on');
+    //    if (!$daylight) ifttt_webhook($fire,'porch_lights_on');
         
 		smartthings_webhook($fire,$which_lock,'unlock');
         send_message ($web,$usetwilio,$sender,$twinum,$mssgtosendr);
@@ -399,7 +435,7 @@ catch(PDOException $e)
 	if ($web){
 
         echo "<br><br><h3>User Table</h3>";
-        echo "<table class=\"table\"><thead class=\"thead-dark\"><tr><th scope=\"col\">Name</th><th scope=\"col\">Permissions</th><th scope=\"col\">Number</th><th scope=\"col\">Code</th><th scope=\"col\">End Access</th><th scope=\"col\">Has Been</th></tr>";
+        echo "<table class=\"table\"><thead class=\"thead-dark\"><tr><th scope=\"col\">Name</th><th scope=\"col\">Permissions</th><th scope=\"col\">Number</th><th scope=\"col\">Code</th><th scope=\"col\">End Access</th><th scope=\"col\">Has Been</th><th scope=\"col\">User Type</th></tr>";
 		$sql = $pdo->query('SELECT * FROM visitors');
 		while ($row = $sql->fetch())
 			{		//$all[] = $row;
@@ -410,7 +446,8 @@ catch(PDOException $e)
                     echo "<td>" . $row['AccessCode']. "</td>";
                     echo "<td>" . date("F d, Y", strtotime($row['EndAccess'])) . "</td>";
                     echo "<td>" . $row['HasBeen'] . "</td>";
-                    echo "</tr>";
+                    echo "<td>" . $row['UserType'] . "</td>";
+					echo "</tr>";
             
         }		
         echo "</table>";
