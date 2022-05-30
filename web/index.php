@@ -1,6 +1,5 @@
 <?php
 
-    ini_set("auto_detect_line_endings", true);
     require __DIR__ . '/../vendor/autoload.php';
 
 	$airbrakeid	    = getenv('AIRBRAKE_ID'); 
@@ -180,10 +179,10 @@ catch(PDOException $e)
 	if (stripos($body,(string)$thisuserscode) !== false) $codechecksout = true ;
 	else $codechecksout = false ;
 
-	$temp0 = new DateTime($thisusersendtime);
-	$temp1 = new DateTime($currenttime);
+//	$temp0 = new DateTime($thisusersendtime);
+//	$temp1 = new DateTime($currenttime);
 
-	if ( $temp1 < $temp0 ) $timechecksout = true ;
+	if ( $currenttime < $thisusersendtime ) $timechecksout = true ;
 	else $timechecksout = false ;
 
 	//------------------------------------------------------

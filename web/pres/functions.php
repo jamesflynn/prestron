@@ -60,7 +60,7 @@ function send_message ($web = false, $usetwilio = false, $to ='null',$from = 'nu
     $ApiVersion = "2010-04-01";
     $AccountSid = getenv('TWILIO_ID');
     $AuthToken = getenv('TWILIO_ACCESS_TOKEN');
-    $client = new TwilioRestClient($AccountSid, $AuthToken);
+    $twilio = new Client($AccountSid, $AuthToken);
 
 	if ($web){
         // format message for web
@@ -69,7 +69,9 @@ function send_message ($web = false, $usetwilio = false, $to ='null',$from = 'nu
     
 	if($usetwilio) {
         // just send text 
-        $response = $client->request("/$ApiVersion/Accounts/$AccountSid/SMS/Messages", "POST", array( "To"   => $to,  "From" => $from, "Body" => $body ));
+        $message = $twilio->messages
+        ->create($to,
+        	["body" => $body,"from" => $from]);
 	}	
 
 }  // close function
